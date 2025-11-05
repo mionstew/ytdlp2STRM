@@ -569,8 +569,16 @@ class Youtube:
     
     def set_language(self, command):
         """Configura el idioma para YouTube según la configuración"""
+        extractor_args = []
+        
         if lang and lang.strip():
-            command.extend(['--extractor-args', f'youtube:lang={lang}'])
+            extractor_args.append(f'youtube:lang={lang}')
+        
+        # Agregar skip=authcheck para evitar errores con playlists que requieren autenticación
+        extractor_args.append('youtubetab:skip=authcheck')
+        
+        if extractor_args:
+            command.extend(['--extractor-args', ';'.join(extractor_args)])
 
 
 def filter_and_modify_bandwidth(m3u8_content):

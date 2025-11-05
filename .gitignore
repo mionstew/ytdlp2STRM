@@ -5,6 +5,7 @@ __pycache__/
 *.tmp
 *.csv
 *.mp4
+*.mkv
 *.m4a
 *.session
 *.log
@@ -13,3 +14,4 @@ channel_list.json
 config.json
 crons.json
 downloaded_files/*
+temp/*

@@ -22,6 +22,9 @@ preload_lock = threading.Lock()
 # Variable de cierre para controlar la ejecución concurrente de la función preload_video
 is_preloading = False
 
+# Flag para detener el daemon
+daemon_running = True
+
 
 def get_next_episode(serie_id, temporada_id, episodio_id):
     """Obtiene el ID del siguiente episodio basado en la ID actual del episodio."""
@@ -91,8 +94,23 @@ def preload_next_episode():
 
 def daemon():
     """Inicia el daemon que verificará el estado de reproducción cada minuto."""
+    global daemon_running
     if not base_url == "" \
     and not api_key == "" :
-        while True:
-            preload_next_episode()
-            time.sleep(60)
+        l.log("jellyfin", "Jellyfin daemon started")
+        while daemon_running:
+            try:
+                preload_next_episode()
+            except Exception as e:
+                l.log("jellyfin", f"Error in preload: {e}")
+            # Sleep en intervalos pequeños para poder detener rápidamente
+            for _ in range(60):
+                if not daemon_running:
+                    break
+                time.sleep(1)
+        l.log("jellyfin", "Jellyfin daemon stopped")
+
+def stop_daemon():
+    """Detiene el daemon de Jellyfin."""
+    global daemon_running
+    daemon_running = False
